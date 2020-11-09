@@ -64,7 +64,15 @@ export default class MoviesDAO {
       // wire.
       // original line: cursor = await movies.find().limit(1)
       cursor = await movies.find({ "countries": { "$elemMatch": { "$in" : countries } } })
-      await cursor.forEach(movie => moviesArray.push(movie));
+      /**
+       * 
+       * 
+       * 
+       * I think the query is wrong, Diego.
+       * 
+       * 
+       *  
+       */      await cursor.forEach(movie => moviesArray.push(movie));
     } catch (e) {
       console.error(`Unable to issue find command, ${e}`)
       return []
