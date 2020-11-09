@@ -54,20 +54,23 @@ export default class MoviesDAO {
     match one or more values of a specific field.
     */
 
-    let cursor
+    let cursor;  // @DiegoMMF
+    let moviesArray = [];
     try {
       // TODO Ticket: Projection
       // Find movies matching the "countries" list, but only return the title
       // and _id. Do not put a limit in your own implementation, the limit
       // here is only included to avoid sending 46000 documents down the
       // wire.
-      cursor = await movies.find().limit(1)
+      // original line: cursor = await movies.find().limit(1)
+      cursor = await movies.find({ "countries": { "$elemMatch": { "$in" : countries } } })
+      await cursor.forEach(movie => moviesArray.push(movie));
     } catch (e) {
       console.error(`Unable to issue find command, ${e}`)
       return []
     }
-
-    return cursor.toArray()
+    // console.log(moviesArray.length);
+    return moviesArray;
   }
 
   /**
