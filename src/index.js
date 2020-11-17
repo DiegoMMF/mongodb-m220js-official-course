@@ -35,7 +35,7 @@ MongoClient.connect(
   })
   .then(async client => {
     await MoviesDAO.injectDB(client)
-    // MoviesDAO.getMoviesByCountry(["Kosovo"]);
+    // MoviesDAO.getMoviesByCountry(["Kosovo"]).then(res => console.log(res))
     await UsersDAO.injectDB(client)
     await CommentsDAO.injectDB(client)
     app.listen(port, () => {
