@@ -199,7 +199,6 @@ export default class MoviesDAO {
    * that would match this query
    */
   static async getMovies({
-    // here's where the default parameters are set for the getMovies method
     filters = null,
     page = 0,
     moviesPerPage = 20,
@@ -227,18 +226,7 @@ export default class MoviesDAO {
       return { moviesList: [], totalNumMovies: 0 }
     }
 
-    /**
-    Ticket: Paging
-
-    Before this method returns back to the API, use the "moviesPerPage" and
-    "page" arguments to decide the movies to display.
-
-    Paging can be implemented by using the skip() and limit() cursor methods.
-    */
-
-    // TODO Ticket: Paging
-    // Use the cursor to only return the movies that belong on the current page
-    const displayCursor = cursor.limit(moviesPerPage)
+    const displayCursor = cursor.skip(page*moviesPerPage).limit(moviesPerPage)
 
     try {
       const moviesList = await displayCursor.toArray()
