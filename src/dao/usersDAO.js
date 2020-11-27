@@ -29,20 +29,14 @@ export default class UsersDAO {
    * @returns {DAOResponse} Returns either a "success" or an "error" Object
    */
   static async addUser(userInfo) {
-    /**
-    Ticket: Durable Writes
-
-    Please increase the durability of this method by using a non-default write
-    concern with ``insertOne``.
-    */
-
     try {
-      // TODO Ticket: Durable Writes
-      // Use a more durable Write Concern for this operation.
       await users.insertOne({
         name: userInfo.name,
         email: userInfo.email,
         password: userInfo.password
+      }, {
+        // here we tell mongo to wait until majority of replicas is writen before send confirmation message to emiter
+        writeConcern: "majority"
       })
       return { success: true }
     } catch (e) {
@@ -145,8 +139,8 @@ export default class UsersDAO {
       // TODO Ticket: User Preferences
       // Use the data in "preferences" to update the user's preferences.
       const updateResponse = await users.updateOne(
-        { someField: someValue },
-        { $set: { someOtherField: someOtherValue } },
+        { someField: "someValue" },
+        { $set: { someOtherField: "someOtherValue" } },
       )
 
       if (updateResponse.matchedCount === 0) {
