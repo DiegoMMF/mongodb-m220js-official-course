@@ -47,8 +47,8 @@ export default class MoviesDAO {
     let cursor;
     let moviesArray = [];
     try {
-      const query = { countries: { "$elemMatch": { "$in" : countries } } };
-      const options = { projection: { title: 1 }};
+      const query = { countries: { "$elemMatch": { "$in": countries } } };
+      const options = { projection: { title: 1 } };
       cursor = await movies.find(query, options);
       await cursor.forEach(movie => moviesArray.push(movie));
     } catch (e) {
@@ -216,7 +216,7 @@ export default class MoviesDAO {
       return { moviesList: [], totalNumMovies: 0 }
     }
 
-    const displayCursor = cursor.skip(page*moviesPerPage).limit(moviesPerPage)
+    const displayCursor = cursor.skip(page * moviesPerPage).limit(moviesPerPage)
 
     try {
       const moviesList = await displayCursor.toArray()
@@ -239,14 +239,10 @@ export default class MoviesDAO {
   static async getMovieByID(id) {
     try {
       /**
-      Ticket: Get Comments
+      Ticket: Get Comments. Given a movie ID, build an Aggregation Pipeline to retrieve the comments
+      matching that movie's ID. The $match stage is already completed. You will need to add a $lookup
+      stage that searches the `comments` collection for the correct comments. */
 
-      Given a movie ID, build an Aggregation Pipeline to retrieve the comments
-      matching that movie's ID.
-
-      The $match stage is already completed. You will need to add a $lookup
-      stage that searches the `comments` collection for the correct comments.
-      */
 
       // TODO Ticket: Get Comments
       // Implement the required pipeline.
@@ -254,6 +250,30 @@ export default class MoviesDAO {
         {
           $match: {
             _id: ObjectId(id)
+          }
+        }, {
+          $lookup: {
+            from: "comments",
+            let: {
+              id: "$_id"
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [
+                      "$movie_id", ObjectId(id)
+                    ]
+                  }
+                }
+              },
+              {
+                $sort: {
+                  date: -1
+                }
+              }
+            ],
+            as: "comments"
           }
         }
       ]

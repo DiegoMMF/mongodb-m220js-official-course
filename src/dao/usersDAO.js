@@ -127,17 +127,7 @@ export default class UsersDAO {
    */
   static async updatePreferences(email, preferences) {
     try {
-      /**
-      Ticket: User Preferences
-
-      Update the "preferences" field in the corresponding user's document to
-      reflect the new information in preferences.
-      */
-
       preferences = preferences || {}
-
-      // TODO Ticket: User Preferences
-      // Use the data in "preferences" to update the user's preferences.
       const updateResponse = await users.updateOne(
         { email: email },
         { $set: { preferences: preferences } },
