@@ -31,8 +31,6 @@ export default class CommentsDAO {
    */
   static async addComment(movieId, user, comment, date) {
     try {
-      // TODO Ticket: Create/Update Comments
-      // Construct the comment document to be inserted into MongoDB.
       const commentDoc = {
         name: user.name,
         email: user.email,
@@ -41,8 +39,7 @@ export default class CommentsDAO {
         date
       }
       const options = {}
-      /* const flags = { upsert: true } */
-      return await comments.insertOne(commentDoc, options/* , flags */)
+      return await comments.insertOne(commentDoc, options)
     } catch (e) {
       console.error(`Unable to post comment: ${e}`)
       return { error: e }
@@ -61,9 +58,6 @@ export default class CommentsDAO {
    */
   static async updateComment(commentId, userEmail, text, date) {
     try {
-      // TODO Ticket: Create/Update Comments
-      // Use the commentId and userEmail to select the proper comment, then
-      // update the "text" and "date" fields of the selected comment.
       const filter = {
         _id: ObjectId(commentId),
         email: userEmail
@@ -96,9 +90,25 @@ export default class CommentsDAO {
     try {
       // TODO Ticket: Delete Comments
       // Use the userEmail and commentId to delete the proper comment.
-      const deleteResponse = await comments.deleteOne({
+      const condition = {
         _id: ObjectId(commentId),
-      })
+        email: userEmail
+      }
+      /**
+       * this works too:
+       * const condition = {
+       *    $and :
+       *      [
+       *        {
+       *          _id: ObjectId(commentId)
+       *        },
+       *        {
+       *          email: userEmail
+       *        }
+       *      ]
+       * }
+       */
+      const deleteResponse = await comments.deleteOne(condition)
 
       return deleteResponse
     } catch (e) {
@@ -118,15 +128,30 @@ export default class CommentsDAO {
     try {
       // TODO Ticket: User Report
       // Return the 20 users who have commented the most on MFlix.
-      const pipeline = []
+      const pipeline = [
+        {
+          '$group': {
+            '_id': '$email', 
+            'count': {
+              '$sum': 1
+            }
+          }
+        }, {
+          '$sort': {
+            'count': -1
+          }
+        }, {
+          '$limit': 20
+        }
+      ]
 
       // TODO Ticket: User Report
       // Use a more durable Read Concern here to make sure this data is not stale.
-      const readConcern = comments.readConcern
+      // original -> const readConcern = comments.readConcern
+      // my bet -> const readConcern = comments.readConcern("majority")
+      const readConcern = { level: "majority" }
 
-      const aggregateResult = await comments.aggregate(pipeline, {
-        readConcern,
-      })
+      const aggregateResult = await comments.aggregate(pipeline, { readConcern })
 
       return await aggregateResult.toArray()
     } catch (e) {
