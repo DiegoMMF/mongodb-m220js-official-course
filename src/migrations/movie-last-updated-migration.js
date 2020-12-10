@@ -13,10 +13,7 @@ require("dotenv").config()
  * Refer to http://mongodb.github.io/node-mongodb-native/3.1/tutorials/crud/#bulkwrite
  */
 
-// This leading semicolon (;) is to signify to the parser that this is a new expression. This expression is an
-// Immediately Invoked Function Expression (IIFE). It's being used to wrap this logic in an asynchronous function
-// so we can use await within.
-// To read more about this type of expression, refer to https://developer.mozilla.org/en-US/docs/Glossary/IIFE
+// This leading semicolon (;) is to signify to the parser that this is a new expression. (IIFE)
 ;(async () => {
   try {
     const host = process.env.MFLIX_DB_URI
@@ -31,8 +28,8 @@ require("dotenv").config()
     // check that its type is a string
     // a projection is not required, but may help reduce the amount of data sent
     // over the wire!
-    const predicate = { somefield: { $someOperator: true } }
-    const projection = {}
+    const predicate = { "lastupdated": { $exists: true } }
+    const projection = { "lastupdated": { $type: "string" } }
     const cursor = await mflix
       .collection("movies")
       .find(predicate, projection)
@@ -50,7 +47,7 @@ require("dotenv").config()
       `Found ${moviesToMigrate.length} documents to update`,
     )
     // TODO: Complete the BulkWrite statement below
-    const { modifiedCount } = await "some bulk operation"
+    const { modifiedCount } = await mflix.collection("movies").bulkWrite(moviesToMigrate)
 
     console.log("\x1b[32m", `${modifiedCount} documents updated`)
     client.close()

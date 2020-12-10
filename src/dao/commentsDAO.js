@@ -78,18 +78,7 @@ export default class CommentsDAO {
   }
 
   static async deleteComment(commentId, userEmail) {
-    /**
-    Ticket: Delete Comments
-
-    Implement the deleteOne() call in this method.
-
-    Ensure the delete operation is limited so only the user can delete their own
-    comments, but not anyone else's comments.
-    */
-
     try {
-      // TODO Ticket: Delete Comments
-      // Use the userEmail and commentId to delete the proper comment.
       const condition = {
         _id: ObjectId(commentId),
         email: userEmail
@@ -117,21 +106,15 @@ export default class CommentsDAO {
     }
   }
 
+/**
+ * Returns the 20 most active emails (by number of comments)
+ */
   static async mostActiveCommenters() {
-    /**
-    Ticket: User Report
-
-    Build a pipeline that returns the 20 most frequent commenters on the MFlix
-    site. You can do this by counting the number of occurrences of a user's
-    email in the `comments` collection.
-    */
     try {
-      // TODO Ticket: User Report
-      // Return the 20 users who have commented the most on MFlix.
       const pipeline = [
         {
           '$group': {
-            '_id': '$email', 
+            '_id': '$email',
             'count': {
               '$sum': 1
             }
@@ -145,10 +128,6 @@ export default class CommentsDAO {
         }
       ]
 
-      // TODO Ticket: User Report
-      // Use a more durable Read Concern here to make sure this data is not stale.
-      // original -> const readConcern = comments.readConcern
-      // my bet -> const readConcern = comments.readConcern("majority")
       const readConcern = { level: "majority" }
 
       const aggregateResult = await comments.aggregate(pipeline, { readConcern })
